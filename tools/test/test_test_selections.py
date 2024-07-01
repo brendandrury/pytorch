@@ -1,9 +1,9 @@
 import pathlib
-import random
 import sys
 import unittest
 from collections import defaultdict
 from typing import Dict, List, Tuple
+import secrets
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 try:
@@ -326,14 +326,14 @@ class TestCalculateShards(unittest.TestCase):
         self.assertListEqual([(0.0, []), (0.0, [])], calculate_shards(2, [], {}, None))
 
     def test_split_shards_random(self) -> None:
-        random.seed(120)
+        secrets.SystemRandom().seed(120)
         for _ in range(100):
-            num_shards = random.randint(1, 10)
-            num_tests = random.randint(1, 100)
+            num_shards = secrets.SystemRandom().randint(1, 10)
+            num_tests = secrets.SystemRandom().randint(1, 100)
             random_times: Dict[str, float] = {
-                str(i): random.randint(0, THRESHOLD * 10) for i in range(num_tests)
+                str(i): secrets.SystemRandom().randint(0, THRESHOLD * 10) for i in range(num_tests)
             }
-            serial = [str(i) for i in range(num_tests) if random.randint(0, 1) == 0]
+            serial = [str(i) for i in range(num_tests) if secrets.SystemRandom().randint(0, 1) == 0]
 
             shards = calculate_shards(
                 num_shards,
@@ -341,7 +341,7 @@ class TestCalculateShards(unittest.TestCase):
                 random_times,
                 None,
                 must_serial=lambda x: x in serial,
-                sort_by_time=random.randint(0, 1) == 0,
+                sort_by_time=secrets.SystemRandom().randint(0, 1) == 0,
             )
 
             times = [x[0] for x in shards]
@@ -369,9 +369,9 @@ class TestCalculateShards(unittest.TestCase):
                 )
 
     def test_calculate_2_shards_against_optimal_shards(self) -> None:
-        random.seed(120)
+        secrets.SystemRandom().seed(120)
         for _ in range(100):
-            random_times = {k.test_file: random.random() * 10 for k in self.tests}
+            random_times = {k.test_file: secrets.SystemRandom().random() * 10 for k in self.tests}
             # all test times except first two
             rest_of_tests = [
                 i
