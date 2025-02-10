@@ -4,7 +4,6 @@ import functools
 import itertools
 import logging
 import os
-import random
 import sys
 import threading
 import time
@@ -17,6 +16,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 from torch.fx._lazy_graph_module import (  # type: ignore[attr-defined]
     _use_lazy_graph_module,
 )
+import secrets
 
 try:
     import numpy as np
@@ -153,7 +153,7 @@ def preserve_global_state(fn):
         prior_inference_mode = torch.is_inference_mode_enabled()
         prior_deterministic = torch.are_deterministic_algorithms_enabled()
         prior_warn_only = torch.is_deterministic_algorithms_warn_only_enabled()
-        py_rng_state = random.getstate()
+        py_rng_state = secrets.SystemRandom().getstate()
         torch_rng_state = torch.random.get_rng_state()
         if torch.cuda.is_available():
             cuda_rng_state = torch.cuda.get_rng_state()
@@ -169,7 +169,7 @@ def preserve_global_state(fn):
             torch.use_deterministic_algorithms(
                 prior_deterministic, warn_only=prior_warn_only
             )
-            random.setstate(py_rng_state)
+            secrets.SystemRandom().setstate(py_rng_state)
             torch.random.set_rng_state(torch_rng_state)
             if torch.cuda.is_available():
                 torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
